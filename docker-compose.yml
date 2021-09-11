@@ -1,24 +1,40 @@
-version: "3.0"
+version: '3.0'
+
 services:
-  db:
-    container_name: pg_container
+  postgres:
+    container_name: postgres_container
     image: postgres
-    env_file:
-      - database.env # configure postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /data/postgres
     volumes:
-      - ./postgresql-data:/var/lib/postgresql/data/ # persist data even if container shuts down
+       - postgres:/data/postgres
     ports:
       - "5432:5432"
+    networks:
+      - postgres
     restart: unless-stopped
-
+  
   pgadmin:
-    container_name: pgadmin4_container
+    container_name: pgadmin_container
     image: dpage/pgadmin4
-    restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: admin@rightq.com
+      PGADMIN_DEFAULT_PASSWORD: rightq
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    volumes:
+       - pgadmin:/var/lib/pgadmin
     ports:
       - "5050:80"
-        restart: unless-stopped
+    networks:
+      - postgres
+    restart: unless-stopped
 
+networks:
+  postgres:
+    driver: bridge
+
+volumes:
+    postgres:
+    pgadmin:
